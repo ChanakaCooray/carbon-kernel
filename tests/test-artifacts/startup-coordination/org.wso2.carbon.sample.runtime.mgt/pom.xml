@@ -60,7 +60,7 @@
             startup.listener;componentName="carbon-sample-runtime-mgt";
             requiredService="org.wso2.carbon.sample.runtime.mgt.Runtime",
             osgi.service;objectClass="org.wso2.carbon.sample.runtime.mgt.RuntimeManager";
-            dependentComponentName="carbon-sample-deployment-engine"
+            requiredByComponentName="carbon-sample-deployment-engine, carbon-sample-transport-mgt"
         </carbon.component>
     </properties>
 

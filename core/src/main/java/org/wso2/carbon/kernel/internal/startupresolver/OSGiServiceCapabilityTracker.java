@@ -41,6 +41,7 @@ import java.util.stream.IntStream;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
+import static org.wso2.carbon.kernel.utils.StringUtils.getNonEmptyStringAfterTrim;
 
 /**
  * Tracks OSGi Services by creating a ServiceTracker which tracks only services required by startup components.
@@ -84,10 +85,10 @@ class OSGiServiceCapabilityTracker {
      * @return a {@link List} of OSGi service keys
      */
     private List<String> getRequiredServiceList(StartupComponentManager startupComponentManager) {
-        List<StartupComponent> startupComponentList = startupComponentManager.getPendingComponents();
-        List<String> requiredServiceList = startupComponentList
+        List<StartupComponent> pendingComponents = startupComponentManager.getComponents(StartupComponent::isPending);
+        List<String> requiredServiceList = pendingComponents
                 .stream()
-                .flatMap(startupComponentBean -> startupComponentBean.getRequiredServiceList().stream())
+                .flatMap(startupComponent -> startupComponent.getRequiredServices().stream())
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -136,46 +137,50 @@ class OSGiServiceCapabilityTracker {
             Bundle bundle = reference.getBundle();
 
             if (RequiredCapabilityListener.class.getName().equals(serviceInterfaceClassName)) {
-
-                String componentKey = (String) reference.getProperty(COMPONENT_NAME);
-                if (componentKey == null || componentKey.equals("")) {
-                    throw new StartOrderResolverException(COMPONENT_NAME + " value is missing in the services " +
-                            "registered with the key " + serviceInterfaceClassName + ", implementation class name is "
-                            + serviceImplClassName);
-                }
+                String componentKey = getNonEmptyStringAfterTrim((String) reference.getProperty(COMPONENT_NAME))
+                        .orElseThrow(() -> new StartOrderResolverException(COMPONENT_NAME + " value is missing in " +
+                                "the services registered with the key " + serviceInterfaceClassName + ", " +
+                                "implementation class name is " + serviceImplClassName));
 
                 startupComponentManager.addRequiredCapabilityListener(
                         (RequiredCapabilityListener) serviceObject, componentKey, reference.getBundle());
 
             } else if (CapabilityProvider.class.getName().equals(serviceInterfaceClassName)) {
-                CapabilityProvider provider = (CapabilityProvider) serviceObject;
-
-                String capabilityName = (String) reference.getProperty(CAPABILITY_NAME);
-                if (capabilityName == null || capabilityName.equals("")) {
-                    throw new StartOrderResolverException(CAPABILITY_NAME + " value is missing in the services " +
-                            "registered with the key " + serviceInterfaceClassName + ", implementation class name is "
-                            + serviceImplClassName);
-                }
+                String capabilityName = getNonEmptyStringAfterTrim((String) reference.getProperty(CAPABILITY_NAME))
+                        .orElseThrow(() -> new StartOrderResolverException(CAPABILITY_NAME + " value is missing in " +
+                                "the services registered with the key " + serviceInterfaceClassName + ", " +
+                                "implementation class name is " + serviceImplClassName));
 
                 CapabilityProviderCapability capabilityProvider = new CapabilityProviderCapability(
-                        CapabilityProvider.class.getName(), Capability.CapabilityType.OSGi_SERVICE,
-                        capabilityName.trim(), bundle);
-                startupComponentManager.addAvailableCapabilityProvider(capabilityProvider);
+                        CapabilityProvider.class.getName(),
+                        Capability.CapabilityType.OSGi_SERVICE,
+                        Capability.CapabilityState.AVAILABLE,
+                        capabilityName.trim(),
+                        bundle);
 
+                startupComponentManager.addExpectedOrAvailableCapabilityProvider(capabilityProvider);
+
+                CapabilityProvider provider = (CapabilityProvider) serviceObject;
                 IntStream.range(0, provider.getCount())
-                        .forEach(count -> startupComponentManager.addExpectedRequiredCapability(
-                                new OSGiServiceCapability(capabilityName.trim(),
-                                        Capability.CapabilityType.OSGi_SERVICE, bundle)));
-
+                        .forEach(count -> startupComponentManager.addExpectedOrAvailableCapability(
+                                new OSGiServiceCapability(
+                                        capabilityName.trim(),
+                                        Capability.CapabilityType.OSGi_SERVICE,
+                                        Capability.CapabilityState.EXPECTED,
+                                        bundle)));
             } else {
                 // this has to be a capability service
                 logger.debug("Adding OSGi Service Capability. Service id: {}. Service implementation class: {}. ",
                         serviceInterfaceClassName,
                         serviceImplClassName);
 
-                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(serviceInterfaceClassName,
-                        Capability.CapabilityType.OSGi_SERVICE, bundle);
-                startupComponentManager.addAvailableRequiredCapability(osgiServiceCapability);
+                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(
+                        serviceInterfaceClassName,
+                        Capability.CapabilityType.OSGi_SERVICE,
+                        Capability.CapabilityState.AVAILABLE,
+                        bundle);
+
+                startupComponentManager.addExpectedOrAvailableCapability(osgiServiceCapability);
             }
 
             return serviceObject;

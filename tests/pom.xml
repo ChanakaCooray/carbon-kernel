@@ -32,6 +32,7 @@
         <module>test-artifacts</module>
         <module>osgi-test-util</module>
         <module>osgi-tests</module>
+        <module>coverage-report</module>
     </modules>
 
     <dependencyManagement>
@@ -119,6 +120,16 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.repository.mgt</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.sample.transport.service</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.sample.runtime.service</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
         </dependencies>

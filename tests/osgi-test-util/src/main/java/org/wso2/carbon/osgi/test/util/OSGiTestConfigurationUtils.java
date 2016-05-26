@@ -167,7 +167,8 @@ public class OSGiTestConfigurationUtils {
 //                .versionAsInProject());
 
 //        optionList.add(repository("http://maven.wso2.org/nexus/content/groups/wso2-public"));
-        optionList.add(CarbonDistributionConfiguration().distributionURL(Paths.get(System.getProperty("carbon.home"))));
+        optionList.add(CarbonDistributionConfiguration().distributionFolderURL(Paths.get(System.getProperty("carbon.home")
+        )));
         optionList.add(keepRuntimeFolder());
 
         return optionList;
