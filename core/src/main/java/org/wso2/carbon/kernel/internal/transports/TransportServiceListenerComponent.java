@@ -30,6 +30,7 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
 import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,5 +86,10 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
         // transports via the OSGi console.
         bundleContext.registerService(CommandProvider.class.getName(),
                 new TransportMgtCommandProvider(transportManager), null);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable(Map<String, List> services) {
+        logger.info(services.toString());
     }
 }

@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Sample Deployer Service Listener class.
  *
@@ -57,5 +60,10 @@ public class DeployerServicesListener implements RequiredCapabilityListener {
     @Deactivate
     public void deactivate(BundleContext bundleContext) {
 
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable(Map<String, List> services) {
+        logger.info(services.toString());
     }
 }

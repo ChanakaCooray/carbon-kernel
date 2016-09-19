@@ -193,6 +193,16 @@ class StartupComponentManager {
 
     }
 
+    void addService(Capability capability, String serviceInterfaceClassName, Object osgiService) {
+        startupComponentMap.values()
+                .stream()
+                .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
+                .forEach(startupComponent -> {
+                    startupComponent.addService(serviceInterfaceClassName, osgiService);
+                });
+
+    }
+
     /**
      * Returns a list of {@code StartupComponent}s based on the given {@code Predicate}.
      * <p>
@@ -236,6 +246,8 @@ class StartupComponentManager {
 
                     try {
                         capabilityListener.onAllRequiredCapabilitiesAvailable();
+                        capabilityListener.onAllRequiredCapabilitiesAvailable(
+                                startupComponent.getRequiredServiceReferencesMap());
                     } catch (RuntimeException e) {
                         logger.error("Runtime Exception occurred while calling onAllRequiredCapabilitiesAvailable of "
                                 + "component " + startupComponent.getName(), e);

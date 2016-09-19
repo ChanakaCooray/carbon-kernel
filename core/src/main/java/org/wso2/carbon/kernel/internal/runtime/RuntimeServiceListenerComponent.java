@@ -29,6 +29,9 @@ import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * This service  component is responsible for retrieving the Runtime OSGi service and register each runtime
  * with runtime manager. It also acts as a RequiredCapabilityListener for all the Runtime capabilities, and
@@ -101,5 +104,10 @@ public class RuntimeServiceListenerComponent implements RequiredCapabilityListen
         } catch (Exception e) {
             logger.error("Error while starting runtime from Runtime manager", e);
         }
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable(Map<String, List> services) {
+        logger.info(services.toString());
     }
 }

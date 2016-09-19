@@ -22,7 +22,9 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code StartupComponent} Represents an entity which needs to hold its initialization until all the required
@@ -63,6 +65,11 @@ public class StartupComponent {
      * List of pending expected or available CapabilityProvider OSGi services.
      */
     private List<CapabilityProviderCapability> pendingCapabilityProviderList = new ArrayList<>();
+
+    /**
+     * List of service references required by the startup component.
+     */
+    private final Map<String, List> requiredServiceReferencesMap = new HashMap<>();
 
     /**
      * OSGi bundle to which this component resides.
@@ -138,6 +145,28 @@ public class StartupComponent {
                 pendingCapabilityList.add(capability);
             }
         }
+    }
+
+    /**
+     * Add required osgi service to the map.
+     * @param serviceInterfaceClassName key of the map
+     * @param osgiService value of the map
+     */
+    public void addService(String serviceInterfaceClassName, Object osgiService) {
+        synchronized (requiredServiceReferencesMap) {
+            List serviceReferencesList = requiredServiceReferencesMap.get(serviceInterfaceClassName);
+            if (serviceReferencesList == null) {
+                serviceReferencesList = new ArrayList<>();
+                serviceReferencesList.add(osgiService);
+                requiredServiceReferencesMap.put(serviceInterfaceClassName, serviceReferencesList);
+            } else {
+                serviceReferencesList.add(osgiService);
+            }
+        }
+    }
+
+    public Map<String, List> getRequiredServiceReferencesMap() {
+        return requiredServiceReferencesMap;
     }
 
     /**

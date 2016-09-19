@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
+import java.util.List;
+import java.util.Map;
 
 /**
  * Sample Transport Services Listener class.
@@ -55,5 +57,10 @@ public class RepositoryServicesListener implements RequiredCapabilityListener {
     @Deactivate
     public void deactivate(BundleContext bundleContext) {
 
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable(Map<String, List> services) {
+        logger.info(services.toString());
     }
 }

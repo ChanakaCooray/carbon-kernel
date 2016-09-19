@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.kernel.startupresolver;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * RequiredCapabilityListener is a listener interface that may be implemented by a Carbon component developer. When
  * all the required capabilities are available, this event is asynchronously delivered to a RequiredCapabilityListener.
@@ -38,4 +41,11 @@ public interface RequiredCapabilityListener {
      * Receives a notification when all the required services are available in the OSGi service registry.
      */
     void onAllRequiredCapabilitiesAvailable();
+
+    /**
+     * Receives a notification with the list of required services when all the required services are available in the
+     * OSGi service registry.
+     */
+    default void onAllRequiredCapabilitiesAvailable(Map<String, List> services) {
+    }
 }

@@ -180,7 +180,9 @@ class OSGiServiceCapabilityTracker {
                         Capability.CapabilityState.AVAILABLE,
                         bundle);
 
+                startupComponentManager.addService(osgiServiceCapability, serviceInterfaceClassName, serviceObject);
                 startupComponentManager.addExpectedOrAvailableCapability(osgiServiceCapability);
+
             }
 
             return serviceObject;
